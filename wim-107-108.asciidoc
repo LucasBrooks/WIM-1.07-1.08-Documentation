@@ -1,0 +1,138 @@
+
+= WIM 1.07 & 1.08
+
+[abstract]
+== Summary
+This document contains information about Microsoft Windows Imagaing Format 1.07 and 1.08. These WIM revisions were never officially documented by Microsoft, and no published software can handle them. This document is unreliable and published for testing purposes only, a more reliable version will come soon.
+
+[preface]
+== Document information
+[cols="1,5"]
+|===
+| Author(s): | Lucas Brooks
+| Abstract: | This document contains information about Microsoft Windows Imagaing Format 1.07 and 1.08
+| Classification: | Public
+| Keywords: | WIM, MSWIM, install.wim, Longhorn, Longhorn M4, Longhorn M5
+|===
+
+[preface]
+== Revision history
+[cols="1,1,1,5",options="header"]
+|===
+| Version | Author | Date | Comments
+| 0.0.1 | Lucas Brooks | March 2021 | Initial version (errors not fixed), created for testing purposes
+|===
+
+== Sections
+
+* WIM Header - 126 bytes, uncompressed
+* File Resources - `Store`, `MSZIP`, `LZNT1` and `LZX` supported
+* Metadata Resource - `.ini` format, same compression
+* Lookup Table - File table/index, uncompressed
+* XML Data - Not a critical section, uncompressed
+
+== WIM Header
+
+Defines the content of the `.wim` file, including memory location of key resources (file resources, lookup table, XML data), and various `.wim` file attributes (version, size, compression type).
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | WIM Header length
+| 4 | 4 | | WIM version
+| 8 | 2 | | Compression flag (`01` - uncompressed, `03` - compressed)
+| 10 | 2 | | Compression type flag (`00` - Store, `01` - MSZIP, `02` - LZNT1, `04` - LZX)
+| 12 | 4 | | Unknown/reserved
+| 16 | 1 | | Lookup Table/XML Data identifier (`02` - Lookup Table/XML Data)
+| 17 | 8 | | Lookup Table length
+| 25 | 8 | | Lookup Table offset
+| 33 | 4 | | Unknown/reserved
+| 37 | 4 | | Unknown/reserved
+| 41 | 8 | | Lookup Table length
+| 49 | 24 | | Unknown/reserved
+| 73 | 1 | | Lookup Table/XML Data identifier (`02` - Lookup Table/XML Data)
+| 74 | 8 | | XML Data length
+| 82 | 4 | | XML Data offset
+| 86 | 8 | | Unknown/reserved
+| 94 | 4 | | Unknown/reserved
+| 98 | 4 | | XML Data length
+|===
+
+== File Resources
+A series of packages that contain captured data, such as source files. Generally `MSZIP` compressed `.cab` files mixed with small uncompressed files for early Longhorn WIMs.
+
+== Metadata Resource
+Contains information about the files that you are capturing, including directory structure and file attributes. There is one metadata resource for each image in a `.wim` file. Generally compressed plain text file, `.ini` format.
+
+[source,ini]
+----
+[Image]
+RootDrive=?
+
+[Security]
+"0x?"=?
+
+[x?]
+"(1)"=(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14)
+----
+
+==== `[Image]` section - attributes of the image
+
+* `RootDrive` - Section (`[x?]`) to apply to drive root
+
+==== `[Security]` section - ACL lists for files and directories
+
+* Left hand side (`0x?`) - Security List Identifier, hex format
+* Right hand side - ACL list data
+
+==== `[x?]` section - Name and metadata of files in a particular directory
+* `(1)` - File name (long)
+* `(2)` - File/folder identifier
+* `(3)` - File name (short)
+* `(4)` - File attribute (hex)
+* `(5)` - Created - LowDateTime
+* `(6)` - Created - HighDateTime
+* `(7)` - Accessed - LowDateTime
+* `(8)` - Accessed - HighDateTime
+* `(9)` - Modified - LowDateTime
+* `(10)` - Modified - HighDateTime
+* `(11)` - Security section entry identifier
+* `(12)` - Unknown/reserved
+* `(13)` - Unknown/reserved
+* `(14)` - Unknown/reserved
+
+== Lookup Table
+Contains the memory location and SHA-1 hash of resource files in the `.wim` file. 53 bytes per entry.
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | | Type identifier (`00` - uncompressed, `04` - compressed, `06` - metadata resource)
+| 1 | 8 | | Stored file length
+| 9 | 8 | | Data offset
+| 17 | 4 | | File ID, to be mapped to `(2)` in the metadata resource
+| 21 | 4 | | Unknown
+| 25 | 8 | | Uncompressed file length
+| 33 | 20 | | SHA-1 hash
+|===
+
+== XML Data
+Contains additional data about the image.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+<WIM>
+	<IMAGE INDEX="">
+		<DIRCOUNT></DIRCOUNT>
+		<FILECOUNT></FILECOUNT>
+		<TOTALBYTES></TOTALBYTES>
+		<CREATIONTIME>
+			<HIGHPART></HIGHPART>
+			<LOWPART></LOWPART>
+		</CREATIONTIME>
+		<DESCRIPTION></DESCRIPTION>
+		<FLAGS></FLAGS>
+	</IMAGE>
+</WIM>
+----
