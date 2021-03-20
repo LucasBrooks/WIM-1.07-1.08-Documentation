@@ -3,7 +3,7 @@
 
 [abstract]
 == Summary
-This document contains information about Microsoft Windows Imagaing Format 1.07 and 1.08. These WIM revisions were never officially documented by Microsoft, and no published software can handle them. This document is unreliable and published for testing purposes only, a more reliable version will come soon.
+This document contains information about Microsoft Windows Imagaing Format 1.07 and 1.08. These WIM versions were never officially documented by Microsoft, and no published software can handle them. This document is unreliable and published for testing purposes only, a more reliable version will come soon.
 
 [preface]
 == Document information
@@ -38,28 +38,39 @@ Defines the content of the `.wim` file, including memory location of key resourc
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 4 | | WIM Header length
-| 4 | 4 | | WIM version
-| 8 | 2 | | Compression flag (`01` - uncompressed, `03` - compressed)
-| 10 | 2 | | Compression type flag (`00` - Store, `01` - MSZIP, `02` - LZNT1, `04` - LZX)
+| 0 | 4 | `126` | WIM Header length
+| 4 | 1 | | WIM version revision
+| 5 | 1 | | WIM version minor
+| 6 | 2 | | WIM version major
+| 8 | 2 | | Compression flag: +
+`1` - uncompressed +
+`3` - compressed
+| 10 | 2 | | Compression type flag: +
+`0` - Store +
+`1` - MSZIP +
+`2` - LZNT1 +
+`4` - LZX +
 | 12 | 4 | | Unknown/reserved
-| 16 | 1 | | Lookup Table/XML Data identifier (`02` - Lookup Table/XML Data)
+| 16 | 1 | `2` | _Lookup Table/XML Data identifier_
 | 17 | 8 | | Lookup Table length
 | 25 | 8 | | Lookup Table offset
 | 33 | 4 | | Unknown/reserved
 | 37 | 4 | | Unknown/reserved
 | 41 | 8 | | Lookup Table length
-| 49 | 24 | | Unknown/reserved
-| 73 | 1 | | Lookup Table/XML Data identifier (`02` - Lookup Table/XML Data)
+| 49 | 8 | | Unknown/reserved
+| 57 | 8 | | Unknown/reserved
+| 65 | 8 | | Unknown/reserved
+| 73 | 1 | `2` | _Lookup Table/XML Data identifier_
 | 74 | 8 | | XML Data length
-| 82 | 4 | | XML Data offset
-| 86 | 8 | | Unknown/reserved
+| 82 | 8 | | XML Data offset
+| 90 | 4 | | Unknown/reserved
 | 94 | 4 | | Unknown/reserved
-| 98 | 4 | | XML Data length
+| 98 | 8 | | XML Data length
+| 106 | 20 | | Unknown/reserved
 |===
 
 == File Resources
-A series of packages that contain captured data, such as source files. Generally `MSZIP` compressed `.cab` files mixed with small uncompressed files for early Longhorn WIMs.
+A series of packages that contain captured data, such as source files. Generally `MSZIP` compressed `.cab` files mixed with small uncompressed files for early Longhorn `.wim` files.
 
 == Metadata Resource
 Contains information about the files that you are capturing, including directory structure and file attributes. There is one metadata resource for each image in a `.wim` file. Generally compressed plain text file, `.ini` format.
