@@ -118,7 +118,10 @@ Contains the memory location and SHA-1 hash of resource files in the `.wim` file
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 1 | | Type identifier (`00` - uncompressed, `04` - compressed, `06` - metadata resource)
+| 0 | 1 | | Type identifier: +
+`00` - uncompressed +
+`04` - compressed +
+`06` - metadata resource
 | 1 | 8 | | Stored file length
 | 9 | 8 | | Data offset
 | 17 | 4 | | File ID, to be mapped to `(2)` in the metadata resource
